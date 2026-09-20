@@ -1,5 +1,6 @@
 package com.example.ligortravel.ui.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -178,16 +181,24 @@ private fun TarjetaExperienciaDestacada(experiencia: Experiencia) {
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        // Placeholder de imagen: el proyecto todavía no tiene una librería de carga
-        // de imágenes (Coil u otra) agregada como dependencia.
-        Icon(
-            imageVector = Icons.Filled.Image,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(48.dp)
-        )
+        if (experiencia.imagenRes != null) {
+            Image(
+                painter = painterResource(experiencia.imagenRes),
+                contentDescription = experiencia.titulo,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            // Placeholder de imagen: esta experiencia todavía no tiene una foto asignada.
+            Icon(
+                imageVector = Icons.Filled.Image,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(48.dp)
+            )
+        }
 
         experiencia.categoria?.let { categoria ->
             Surface(
@@ -346,11 +357,20 @@ private fun TarjetaExperienciaLocal(experiencia: Experiencia) {
                 .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Filled.Image,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (experiencia.imagenRes != null) {
+                Image(
+                    painter = painterResource(experiencia.imagenRes),
+                    contentDescription = experiencia.titulo,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.Image,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(

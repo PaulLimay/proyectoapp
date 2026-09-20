@@ -7,5 +7,6 @@ data class Experiencia(
     val duracion: String,
     val rating: Double,
     val precioDesde: Int,
-    val categoria: String? = null
+    val categoria: String? = null,
+    val imagenRes: Int? = null
 )
