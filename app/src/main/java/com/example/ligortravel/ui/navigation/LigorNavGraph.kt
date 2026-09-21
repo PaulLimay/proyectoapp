@@ -8,8 +8,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ligortravel.ui.auth.AuthScreen
 import com.example.ligortravel.ui.home.HomeScreen
 import com.example.ligortravel.ui.perfil.PerfilScreen
+import com.example.ligortravel.ui.splash.SplashScreen
 
 object Rutas {
+    const val SPLASH = "splash"
     const val AUTH = "auth"
     const val HOME = "home"
     const val PERFIL = "perfil"
@@ -17,7 +19,17 @@ object Rutas {
 
 @Composable
 fun LigorNavGraph(navController: NavHostController = rememberNavController()) {
-    NavHost(navController = navController, startDestination = Rutas.AUTH) {
+    NavHost(navController = navController, startDestination = Rutas.SPLASH) {
+
+        composable(Rutas.SPLASH) {
+            SplashScreen(
+                onTimeout = {
+                    navController.navigate(Rutas.AUTH) {
+                        popUpTo(Rutas.SPLASH) { inclusive = true }
+                    }
+                }
+            )
+        }
 
         composable(Rutas.AUTH) {
             AuthScreen(
