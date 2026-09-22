@@ -1,5 +1,6 @@
 package com.example.ligortravel.ui.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,17 +22,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -47,15 +43,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ligortravel.R
+import com.example.ligortravel.ui.components.CampoPassword
 import com.example.ligortravel.ui.login.LoginUiState
 import com.example.ligortravel.ui.login.LoginViewModel
 import com.example.ligortravel.ui.registro.RegistroUiState
@@ -92,7 +91,7 @@ fun AuthScreen(
             ) {
                 EncabezadoAuth()
                 Spacer(modifier = Modifier.height(20.dp))
-                FotoExperienciaPlaceholder()
+                FotoExperienciaLogin()
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "TURISMO",
@@ -169,27 +168,16 @@ private fun EncabezadoAuth() {
 }
 
 @Composable
-private fun FotoExperienciaPlaceholder() {
-    Box(
+private fun FotoExperienciaLogin() {
+    Image(
+        painter = painterResource(R.drawable.lima),
+        contentDescription = "Plaza de Armas de Lima",
+        contentScale = ContentScale.Crop,
         modifier = Modifier
             .fillMaxWidth()
             .height(110.dp)
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                imageVector = Icons.Filled.Image,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "Foto experiencia",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 12.sp
-            )
-        }
-    }
+            .clip(RoundedCornerShape(16.dp))
+    )
 }
 
 @Composable
@@ -235,28 +223,6 @@ private fun EtiquetaCampo(texto: String) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
         letterSpacing = 1.sp
-    )
-}
-
-@Composable
-private fun CampoPassword(value: String, onValueChange: (String) -> Unit, placeholder: String) {
-    var mostrar by remember { mutableStateOf(false) }
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = { Text(placeholder) },
-        singleLine = true,
-        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-        trailingIcon = {
-            IconButton(onClick = { mostrar = !mostrar }) {
-                Icon(
-                    imageVector = if (mostrar) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                    contentDescription = if (mostrar) "Ocultar contraseña" else "Mostrar contraseña"
-                )
-            }
-        },
-        visualTransformation = if (mostrar) VisualTransformation.None else PasswordVisualTransformation(),
-        modifier = Modifier.fillMaxWidth()
     )
 }
 
