@@ -20,7 +20,14 @@ data class PerfilUiState(
     val nombreOriginal: String = "",
     val telefonoOriginal: String = "",
     val error: String? = null,
-    val guardadoExitoso: Boolean = false
+    val guardadoExitoso: Boolean = false,
+    val passwordActual: String = "",
+    val passwordNuevo: String = "",
+    val confirmarPassword: String = "",
+    val mostrarDialogo: Boolean = false,
+    val cargandoPassword: Boolean = false,
+    val errorPassword: String? = null,
+    val passwordActualizada: Boolean = false
 )
 
 class PerfilViewModel(
@@ -52,11 +59,80 @@ class PerfilViewModel(
         _uiState.value = _uiState.value.copy(telefono = valor, error = null)
     }
 
+    fun onPasswordActualChange(valor: String) {
+        _uiState.value = _uiState.value.copy(passwordActual = valor, errorPassword = null)
+    }
+    fun onPasswordNuevoChange(valor: String) {
+        _uiState.value = _uiState.value.copy(passwordNuevo = valor, errorPassword = null)
+    }
+    fun onConfirmarPasswordNuevoChange(valor: String) {
+        _uiState.value = _uiState.value.copy(confirmarPassword = valor, errorPassword = null)
+    }
+
     fun activarEdicion() {
         _uiState.value = _uiState.value.copy(editando = true, nombreOriginal = _uiState.value.nombre, telefonoOriginal = _uiState.value.telefono, guardadoExitoso = false)
     }
     fun cancelarEdicion() {
         _uiState.value = _uiState.value.copy(editando = false, nombre = _uiState.value.nombreOriginal, telefono = _uiState.value.telefonoOriginal)
+    }
+    fun abrirDialogoPassword() {
+        _uiState.value = _uiState.value.copy(
+            mostrarDialogo = true,
+            passwordActual = "",
+            passwordNuevo = "",
+            confirmarPassword = "",
+            errorPassword = null,
+            passwordActualizada = false
+        )
+    }
+
+    fun cerrarDialogoPassword() {
+        _uiState.value = _uiState.value.copy(
+            mostrarDialogo = false,
+            passwordActual = "",
+            passwordNuevo = "",
+            confirmarPassword = "",
+            errorPassword = null
+        )
+    }
+
+    fun actualizarPassword() {
+        val estado = _uiState.value
+
+        if (estado.passwordActual.isBlank() || estado.passwordNuevo.isBlank() || estado.confirmarPassword.isBlank()) {
+            _uiState.value = estado.copy(errorPassword = "Completa todos los campos")
+            return
+        }
+        if (estado.passwordNuevo.length < 6) {
+            _uiState.value = estado.copy(errorPassword = "La nueva contraseña debe tener al menos 6 caracteres")
+            return
+        }
+        if (estado.passwordNuevo != estado.confirmarPassword) {
+            _uiState.value = estado.copy(errorPassword = "Las contraseñas nuevas no coinciden")
+            return
+        }
+
+        _uiState.value = estado.copy(cargandoPassword = true, errorPassword = null)
+
+        viewModelScope.launch {
+            authRepository.actualizarPassword(estado.passwordActual, estado.passwordNuevo)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(
+                        cargandoPassword = false,
+                        mostrarDialogo = false,
+                        passwordActual = "",
+                        passwordNuevo = "",
+                        confirmarPassword = "",
+                        passwordActualizada = true
+                    )
+                }
+                .onFailure { excepcion ->
+                    _uiState.value = _uiState.value.copy(
+                        cargandoPassword = false,
+                        errorPassword = excepcion.message ?: "No se pudo actualizar la contraseña"
+                    )
+                }
+        }
     }
 
     fun guardarCambios() {

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -34,6 +35,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ligortravel.BuildConfig
+import com.example.ligortravel.ui.components.CampoPassword
 import com.example.ligortravel.ui.theme.LigorDarkColorScheme
 
 @Composable
@@ -117,6 +120,20 @@ fun PerfilScreen(
                 if (uiState.editando) {
                     Spacer(modifier = Modifier.height(16.dp))
                     BotonGuardar(cargando = uiState.cargando, onClick = viewModel::guardarCambios)
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                OutlinedButton(
+                    onClick = {
+                        viewModel.abrirDialogoPassword()
+                    },
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Text("Actualizar contraseña")
+                }
+
+                if (uiState.mostrarDialogo) {
+                    DialogoActualizarPassword(uiState = uiState, viewModel = viewModel)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -268,4 +285,54 @@ private fun BotonGuardar(cargando: Boolean, onClick: () -> Unit) {
             Text("Guardar cambios")
         }
     }
+}
+
+@Composable
+private fun DialogoActualizarPassword(uiState: PerfilUiState, viewModel: PerfilViewModel) {
+    AlertDialog(
+        onDismissRequest = viewModel::cerrarDialogoPassword,
+        title = { Text("Actualizar contraseña") },
+        text = {
+            Column {
+                CampoPassword(
+                    value = uiState.passwordActual,
+                    onValueChange = viewModel::onPasswordActualChange,
+                    placeholder = "Contraseña actual"
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                CampoPassword(
+                    value = uiState.passwordNuevo,
+                    onValueChange = viewModel::onPasswordNuevoChange,
+                    placeholder = "Nueva contraseña"
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                CampoPassword(
+                    value = uiState.confirmarPassword,
+                    onValueChange = viewModel::onConfirmarPasswordNuevoChange,
+                    placeholder = "Confirmar nueva contraseña"
+                )
+                uiState.errorPassword?.let { mensaje ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = mensaje, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = viewModel::actualizarPassword,
+                enabled = !uiState.cargandoPassword
+            ) {
+                if (uiState.cargandoPassword) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                } else {
+                    Text("Confirmar")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = viewModel::cerrarDialogoPassword) {
+                Text("Cancelar")
+            }
+        }
+    )
 }

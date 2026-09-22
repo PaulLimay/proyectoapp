@@ -2,6 +2,7 @@ package com.example.ligortravel.data
 
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -25,6 +26,18 @@ class AuthRepository(
         val resultado = auth.signInWithEmailAndPassword(email, password).await()
         val uid = resultado.user?.uid
         if (uid != null) Result.success(uid) else Result.failure(Exception("No se pudo iniciar sesión"))
+    } catch (e: Exception) {
+        Result.failure(Exception(mensajeError(e)))
+    }
+    suspend fun actualizarPassword(passwordActual: String, passwordNueva: String): Result<Unit> = try {
+        val usuario = auth.currentUser ?: return Result.failure(Exception("No hay sesión activa"))
+        val email = usuario.email ?: return Result.failure(Exception("..."))
+
+        val credential = EmailAuthProvider.getCredential(email, passwordActual)
+        usuario.reauthenticate(credential).await()   // paso 1: verifica la contraseña actual
+        usuario.updatePassword(passwordNueva).await() // paso 2: recién acá cambia la contraseña
+
+        Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mensajeError(e)))
     }
